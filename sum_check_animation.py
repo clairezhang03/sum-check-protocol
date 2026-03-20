@@ -813,87 +813,277 @@ class SumCheckScene2(Scene):
 
 class SumCheckRoundI(Scene):
     def construct(self):
-        # ── both on screen ───────────────────────────────────────────────
+        # ── continuing from scene 2 ──────────────────────────────────────
         alice = Circle(radius=0.75, color=PROVER_COLOR, fill_opacity=0.2)
         alice_text = Text("Alice", font_size=22, color=PROVER_COLOR)
         alice_text.move_to(alice)
-        alice_group = VGroup(alice, alice_text).to_edge(LEFT, buff=2)
+        alice_group = VGroup(alice, alice_text).to_edge(UP, buff=0.5).to_edge(LEFT, buff=2)
 
         bob = Circle(radius=0.75, color=VERIF_COLOR, fill_opacity=0.2)
         bob_text = Text("Bob", font_size=22, color=VERIF_COLOR)
         bob_text.move_to(bob)
-        bob_group = VGroup(bob, bob_text).to_edge(RIGHT, buff=2)
+        bob_group = VGroup(bob, bob_text).to_edge(UP, buff=0.5).to_edge(RIGHT, buff=2)
 
-        self.play(FadeIn(alice_group), FadeIn(bob_group), run_time=1.5)
+        self.add(alice_group, bob_group)
         self.wait(1)
 
-        # ── round header ─────────────────────────────────────────────────
-        header = Text("Round i", font_size=36, color=WHITE, weight=BOLD)
-        header.to_edge(UP, buff=0.4)
-        self.play(Write(header), run_time=1.2)
-        self.wait(1)
+        # helper: arrow at y=0, x from sender to receiver
+        def make_arrow(sender, receiver, color):
+            start = np.array([sender.get_center()[0], 0, 0])
+            end   = np.array([receiver.get_center()[0], 0, 0])
+            return Arrow(start=start, end=end, color=color, buff=0)
 
-        # ── Bob sends r_i to Alice ───────────────────────────────────────
-        arrow_to_alice = CurvedArrow(
-            start_point=bob_group.get_left(),
-            end_point=alice_group.get_right(),
-            color=VERIF_COLOR,
-            angle=TAU/6
-        )
-        r_msg = MathTex(r"r_i \overset{\$}{\leftarrow} \mathbb{F}_q", font_size=28, color=VERIF_COLOR)
-        r_msg.next_to(arrow_to_alice, DOWN, buff=0.15)
-
-        self.play(Create(arrow_to_alice), Write(r_msg), run_time=1.5)
-        self.wait(2.5)
-
-        # ── Alice computes and sends S_{i+1} ─────────────────────────────
-        s_next = MathTex(
-            r"S_{i+1}(X_{i+1}) = \!\!\sum_{X_{i+2},\ldots,X_n \in \{0,1\}}\!\! g(r_1,\ldots,r_i, X_{i+1},\ldots,X_n)",
-            font_size=26, color=POLY_COLOR
-        )
-        s_next.move_to(ORIGIN).shift(UP * 1.2)
-
-        arrow_to_bob = CurvedArrow(
-            start_point=alice_group.get_right(),
-            end_point=bob_group.get_left(),
-            color=PROVER_COLOR,
-            angle=-TAU/6
-        )
-        s_label = MathTex(r"S_{i+1}(X_{i+1})", font_size=28, color=PROVER_COLOR)
-        s_label.next_to(arrow_to_bob, UP, buff=0.15)
-
-        self.play(
-            FadeOut(arrow_to_alice), FadeOut(r_msg),
-            run_time=0.8
-        )
-        self.play(Write(s_next), run_time=2.5)
+        # ── Bob sends r_i to Alice ────────────────────────────────────────
+        arrow_to_alice = make_arrow(bob_group, alice_group, VERIF_COLOR)
+        r_label = MathTex(r"r_i", font_size=48, color=VERIF_COLOR)
+        r_label.next_to(arrow_to_alice, UP, buff=0.15)
+        self.play(Create(arrow_to_alice), Write(r_label), run_time=1.5)
         self.wait(2)
-        self.play(Create(arrow_to_bob), Write(s_label), run_time=1.5)
-        self.wait(2.5)
 
-        # ── Bob checks S_{i+1}(0) + S_{i+1}(1) =? S_i(r_i) ────────────
+        # ── Alice computes S_{i+1}: Alice to center, Bob exits right ─────
         self.play(
-            FadeOut(arrow_to_bob), FadeOut(s_label), FadeOut(s_next),
-            run_time=0.8
+            FadeOut(arrow_to_alice), FadeOut(r_label),
+            run_time=0.5
+        )
+        self.play(
+            alice_group.animate.move_to(UP * 3),
+            bob_group.animate.shift(RIGHT * 15),
+            run_time=1.2
+        )
+
+        s_full = MathTex(
+            r"S_{i+1}(X_{i+1}) = \!\!\sum_{X_{i+2},\ldots,X_n \in \{0,1\}}\!\! g(r_1,\ldots,r_i, X_{i+1},\ldots,X_n)",
+            font_size=48, color=POLY_COLOR
+        )
+        s_full.next_to(alice_group, DOWN, buff=2)
+        self.play(Write(s_full), run_time=2.5)
+        self.wait(3)
+
+        # ── swipe back: both at top corners ──────────────────────────────
+        bob_group.to_edge(UP, buff=0.5).to_edge(RIGHT, buff=2)
+        bob_group.shift(RIGHT * 15)
+        self.play(
+            alice_group.animate.to_edge(UP, buff=0.5).to_edge(LEFT, buff=2),
+            bob_group.animate.shift(LEFT * 15),
+            FadeOut(s_full),
+            run_time=1.2
+        )
+        self.wait(1)
+
+        # ── Alice sends S_{i+1} to Bob ────────────────────────────────────
+        arrow_to_bob = make_arrow(alice_group, bob_group, PROVER_COLOR)
+        s_label = MathTex(r"S_{i+1}(X_{i+1})", font_size=48, color=PROVER_COLOR)
+        s_label.next_to(arrow_to_bob, UP, buff=0.15)
+        self.play(Create(arrow_to_bob), Write(s_label), run_time=1.5)
+        self.wait(2)
+
+        # ── Bob checks: Bob to center, Alice exits left ───────────────────
+        self.play(
+            FadeOut(arrow_to_bob), FadeOut(s_label),
+            run_time=0.5
+        )
+        self.play(
+            bob_group.animate.move_to(UP * 3),
+            alice_group.animate.shift(LEFT * 15),
+            run_time=1.2
         )
 
         check = MathTex(
             r"S_{i+1}(0) + S_{i+1}(1) \stackrel{?}{=} S_i(r_i)",
-            font_size=36, color=VERIF_COLOR
+            font_size=48, color=VERIF_COLOR
         )
-        check.move_to(ORIGIN).shift(UP * 0.5)
+        check.next_to(bob_group, DOWN, buff=0.5)
         self.play(Write(check), run_time=2.5)
         self.wait(3)
 
-        # ── if check passes, move to round i+1 ──────────────────────────
+        # ── Bob samples r_{i+1} ──────────────────────────────────────────
         next_round = MathTex(
             r"r_{i+1} \overset{\$}{\leftarrow} \mathbb{F}_q",
-            font_size=36, color=VERIF_COLOR
+            font_size=48, color=VERIF_COLOR
         )
         next_round.next_to(check, DOWN, buff=0.5)
-        repeat = Text("Repeat for round i+1", font_size=28, color=WHITE)
+        repeat = Text("Repeat for round i+1", font_size=26, color=WHITE)
         repeat.next_to(next_round, DOWN, buff=0.4)
 
         self.play(Write(next_round), run_time=1.5)
+        # ── swipe back: both at top corners ──────────────────────────────
+        alice_group.to_edge(UP, buff=0.5).to_edge(LEFT, buff=2)
+        alice_group.shift(LEFT * 15)
+        self.play(
+            bob_group.animate.to_edge(UP, buff=0.5).to_edge(RIGHT, buff=2),
+            alice_group.animate.shift(RIGHT * 15),
+            FadeOut(check), FadeOut(next_round),
+            run_time=1.2
+        )
+        self.wait(0.5)
+
+        repeat = Tex("Repeat for rounds $i+1, i+2, ..., n$", font_size=32, color=WHITE)
+        repeat.to_edge(UP, buff=0.5).move_to(UP * 3)  # top center between them
         self.play(Write(repeat), run_time=1.2)
         self.wait(3)
+
+        # ── stacked arrows showing remaining rounds ───────────────────────
+        start_y = alice_group.get_bottom()[1] - 0.5
+        spacing = 1.0
+
+        rounds = [
+            (r"r_{i+1}", VERIF_COLOR, "bob_to_alice"),
+            (r"S_{i+2}(X_{i+2})", PROVER_COLOR, "alice_to_bob"),
+            (r"\vdots", WHITE, None),
+            (r"r_{n-1}", VERIF_COLOR, "bob_to_alice"),
+            (r"S_n(X_n)", PROVER_COLOR, "alice_to_bob"),
+        ]
+
+        extra_pad = 0  # accumulates extra padding after the dots
+
+        for i, (label_tex, color, direction) in enumerate(rounds):
+            y = start_y - i * spacing - extra_pad
+
+            label = MathTex(label_tex, font_size=32, color=color)
+
+            if direction is None:
+                label.move_to(np.array([0, y, 0]))
+                self.play(Write(label), run_time=0.5)
+                extra_pad += 0.4  # extra breathing room after dots
+            else:
+                if direction == "bob_to_alice":
+                    start = np.array([bob_group.get_center()[0], y, 0])
+                    end   = np.array([alice_group.get_center()[0], y, 0])
+                else:
+                    start = np.array([alice_group.get_center()[0], y, 0])
+                    end   = np.array([bob_group.get_center()[0], y, 0])
+
+                arrow = Arrow(start=start, end=end, color=color, buff=0)
+                label.next_to(arrow, UP, buff=0.1)
+                self.play(Create(arrow), Write(label), run_time=0.8)
+
+            self.wait(0.5)
+
+        self.wait(2)
+
+        # ── Bob shifts to center, everything else fades out ───────────────
+        self.play(
+            bob_group.animate.move_to(UP * 3),
+            *[FadeOut(mob) for mob in self.mobjects if mob != bob_group],
+            run_time=1.5
+        )
+        self.wait(1)
+
+class SumCheckFinale(Scene):
+    def construct(self):
+        # ── Bob already in center from previous scene ─────────────────────
+        bob = Circle(radius=0.75, color=VERIF_COLOR, fill_opacity=0.2)
+        bob_text = Text("Bob", font_size=22, color=VERIF_COLOR)
+        bob_text.move_to(bob)
+        bob_group = VGroup(bob, bob_text)
+        bob_group.move_to(UP * 3)
+        self.add(bob_group)
+        self.wait(1)
+
+        # ── Bob checks S_n(0) + S_n(1) =? S_{n-1}(r_{n-1}) ─────────────
+        check = MathTex(
+            r"S_n(0) + S_n(1) \stackrel{?}{=} S_{n-1}(r_{n-1})",
+            font_size=48, color=VERIF_COLOR
+        )
+        check.next_to(bob_group, DOWN, buff=0.5)
+        self.play(Write(check), run_time=2.5)
+        self.wait(3)
+
+        checkmark = MathTex(r"\checkmark", font_size=48, color=GOOD_COLOR)
+        checkmark.next_to(check, RIGHT, buff=0.3)
+        self.play(Write(checkmark), run_time=0.8)
+        self.wait(2)
+
+        # ── clear and move to final check ────────────────────────────────
+        self.play(FadeOut(check), FadeOut(checkmark), run_time=1.0)
+        self.wait(0.5)
+
+        # ── Bob selects final random r_n ──────────────────────────────────
+        random_rn = MathTex(
+            r"r_n \overset{\$}{\leftarrow} \mathbb{F}_q",
+            font_size=48, color=FIELD_COLOR
+        )
+        random_rn.next_to(bob_group, DOWN, buff=0.5)
+        self.play(Write(random_rn), run_time=1.5)
+        self.wait(2)
+
+        self.play(FadeOut(random_rn), run_time=0.8)
+
+        # ── final check: g(r_1,...,r_n) =? S_n(r_n) ─────────────────────
+        final_check = MathTex(
+            r"g(r_1, r_2, \ldots, r_n) \stackrel{?}{=} S_n(r_n)",
+            font_size=48, color=VERIF_COLOR
+        )
+        final_check.next_to(bob_group, DOWN, buff=0.5)
+        self.play(Write(final_check), run_time=2.5)
+        self.wait(3)
+
+        # ── if equal, sum is verified ─────────────────────────────────────
+        verdict = MathTex(
+            r"\sum_{x_1,\ldots,x_n \in \{0,1\}} g(x_1,\ldots,x_n) = T \quad \checkmark",
+            font_size=48, color=GOOD_COLOR
+        )
+        verdict.next_to(final_check, DOWN, buff=0.5)
+        self.play(Write(verdict), run_time=2.5)
+        self.wait(3)
+
+
+        # ── fade out equations, revert to example polynomial ─────────────
+        self.play(
+            FadeOut(final_check), FadeOut(verdict),
+            run_time=1.0
+        )
+        self.wait(0.5)
+
+        example = MathTex(
+            r"g(X_1, X_2, X_3) = 2X_1^3 + X_1 X_3 + X_2 X_3",
+            font_size=48, color=POLY_COLOR
+        )
+        example.next_to(bob_group, DOWN, buff=0.5)
+        self.play(Write(example), run_time=2.5)
+        self.wait(3)
+        
+        # ── show r values ─────────────────────────────────────────────────
+        r_vals = MathTex(
+            r"(r_1, r_2, r_3) = (2, 3, 4)",
+            font_size=48, color=FIELD_COLOR
+        )
+        r_vals.next_to(example, DOWN, buff=0.5)
+        self.play(Write(r_vals), run_time=1.5)
+        self.wait(2)
+
+        # S_3(X_3) = g(2, 3, X_3) = 2(2)^3 + 2*X_3 + 3*X_3 = 16 + 5X_3
+        s_n = MathTex(
+            r"S_3(X_3) = g(2, 3, X_3) = 16 + 5X_3",
+            font_size=48, color=POLY_COLOR
+        )
+        s_n.next_to(r_vals, DOWN, buff=0.5)
+        self.play(Write(s_n), run_time=2.5)
+        self.wait(3)
+
+
+        self.play(
+            example.animate.scale(0.6).next_to(bob_group, LEFT, buff=0.5),
+            s_n.animate.scale(0.6).next_to(bob_group, RIGHT, buff=0.5),
+            r_vals.animate.scale(0.7).next_to(bob_group, DOWN, buff=0.3),
+            run_time=1.5
+        )
+        self.wait(2)
+
+        aligned = MathTex(
+            r"g(r_1, r_2, r_3) &= S_3(r_3) \\",
+            r"g(2, 3, 4) &= S_3(4) \\",
+            r"2(2)^3 + 2(4) + 3(4) &= 16 + 5(4) \\",
+            r"36 &= 36 \quad \checkmark",
+            font_size=36,
+        )
+        aligned.next_to(r_vals, DOWN, buff=0.7).shift(LEFT * 0.7)
+
+        for i, line in enumerate(aligned):
+            color = GOOD_COLOR if i == 3 else POLY_COLOR
+            line.set_color(color)
+            self.play(Write(line), run_time=1.2)
+            self.wait(0.8)
+
+        self.wait(3)
+        self.play(FadeOut(aligned), run_time=1.0)
