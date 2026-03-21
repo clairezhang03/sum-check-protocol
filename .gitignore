@@ -1,0 +1,8 @@
+# Ignore everything by default
+*
+
+# Keep this ignore file tracked
+!.gitignore
+
+# Keep only the target Python file tracked
+!sum_check_animation.py

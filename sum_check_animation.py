@@ -49,7 +49,7 @@ class IntroSumCheck(Scene):
         self.add(polynomial)
 
         self.play(Write(polynomial), run_time=3)
-        self.wait(1.5)
+        self.wait(1)
 
         free_vars = polynomial[0][1:11].copy()  # X_1, X_2, X_3
         self.play(free_vars.animate.scale(0.7).to_corner(UL, buff=0.5), run_time=1.5)
@@ -111,13 +111,15 @@ class IntroSumCheck(Scene):
         answer.shift(DOWN * 0.06)
 
         self.play(ReplacementTransform(points, answer), run_time=1.5)
-        self.wait(2.5)
+        self.pause(4)
+        self.play(FadeOut(*self.mobjects), run_time=1.5)
 
 # Motivation that with larger number of variables and variable settings, the number of calculations explodes
 class BiggerPolynomial(Scene):
     def construct(self):
         header = Text("What if there were more variables?", font_size=36, color=WHITE, weight=BOLD)
         self.play(Write(header))
+        self.wait(1.5)
         self.play(header.animate.to_edge(UP))
         self.wait(0.5)
         big_poly = MathTex(
@@ -127,10 +129,10 @@ class BiggerPolynomial(Scene):
         )
         big_poly[1].set_color(ORANGE)
         big_poly[1].scale(1.2)
-        self.play(Write(big_poly[0][:-1:]), run_time=4.5)
-        self.wait(1)
+        self.play(Write(big_poly[0][:-1:]), run_time=2)
+        self.wait(3.5)
         self.play(Write(big_poly[0][-1:]), Write(big_poly[1]), run_time=1.5)
-        self.wait(4.5)
+        self.wait(4)
 
         explosion = MathTex(
             r"\text{Number of possible } (x_1,\ldots,x_{20}) = 2^{20} > 1\text{ million!}",
@@ -139,8 +141,7 @@ class BiggerPolynomial(Scene):
         explosion.next_to(big_poly, DOWN, buff=0.4)
 
         self.play(Write(explosion), run_time=1.5)
-        self.wait(3.5)
-        self.play(FadeOut(VGroup(header, explosion)))
+        self.wait(2.5)
 
         general_poly = MathTex(
             r"\sum_{x_1\ldots x_n}\!\! g(x_1,\,x_2,\,\ldots,\,x_n)",
@@ -150,39 +151,43 @@ class BiggerPolynomial(Scene):
         general_poly.move_to(big_poly[0])
 
         self.play(
-            FadeOut(big_poly),
+            FadeOut(VGroup(header, explosion,big_poly)),
             run_time=0.5
         )
-        self.wait(1.5)
+        self.wait(0.5)
         self.play(Write(general_poly), run_time=2)
 
-        self.play(general_poly.animate.shift(DOWN * 0.3), run_time=1.2)
+        self.play(general_poly.animate.shift(DOWN * 0.3), run_time=1)
 
         self.wait(0.5)
         var_copy = general_poly[0][9:23].copy()  # x_1 ... x_n
 
-        self.play(var_copy.animate.shift(UP * 1).shift(LEFT * 1.6), run_time=1.5)
+        self.play(var_copy.animate.shift(UP * 1).shift(LEFT * 1.6), run_time=1)
 
         domain = MathTex(r"\in \{0,\ldots, k-1\}^n", font_size=36, color=WHITE)
         domain.next_to(var_copy, RIGHT, buff=0.3)
         self.play(Write(domain), run_time=1.2)
-        self.wait(3)
+        self.wait(2.5)
 
         num_possibilities = MathTex(r"\text{Number of evaluations} = k^n", font_size=48, color=RED)
         num_possibilities.to_edge(UP, buff=1)
-        self.play(Write(num_possibilities), run_time=1.2)
-        self.wait(3)
-        self.play(FadeOut(*self.mobjects), run_time=1.5)
+        self.play(Write(num_possibilities), run_time=2)
+        self.wait(0.5)
+        self.play(FadeOut(*self.mobjects), run_time=1)
 
 class MotivationCheck(Scene):
     def construct(self):
+        self.wait(5)
+
         header = Text("How can I efficiently prove to YOU that the sum is correct?", font_size=36, color=WHITE)
         header[6].set_color(VERIF_COLOR)
         header[25:28].set_color(PROVER_COLOR)
-        self.play(Write(header), run_time=3.5)
-        self.wait(1.5)
+        self.play(Write(header), run_time=4.5)
+        self.wait(7.5)
 
         self.play(header.animate.to_edge(UP, buff=0.8), run_time=1.5)
+
+        self.wait(1)
 
         prover = header[6].copy()
         verifier = header[25:28].copy()
@@ -193,7 +198,7 @@ class MotivationCheck(Scene):
             run_time=1.5
         )
 
-        self.wait(1.5)
+        self.wait(4)
 
         # draw arrow from prover to verifier
         arrow_pv = CurvedArrow(
@@ -217,9 +222,9 @@ class MotivationCheck(Scene):
         label_vp.next_to(arrow_vp, DOWN, buff=0.15)
 
         self.play(Create(arrow_pv), FadeIn(label_pv), run_time=1.0)
-        self.wait(2.5)
+        self.wait(1)
         self.play(Create(arrow_vp), FadeIn(label_vp), run_time=1.0)
-        self.wait(1.5)
+        self.wait(2.5)
 
         self.play(
             FadeOut(arrow_pv),
@@ -236,9 +241,9 @@ class MotivationCheck(Scene):
         random = MathTex(r"r \overset{\$}{\longleftarrow} \{0,1\}^n", font_size=42, color=FIELD_COLOR)
         random.next_to(verifier, DOWN, buff=0.4)
         self.play(Write(random), run_time=1.5)
-        self.wait(1.5)
+        self.wait(2.5)
         self.play(FadeOut(VGroup(verifier,random)),header.animate.move_to(ORIGIN).shift(DOWN * 0.2), run_time=1.5)
-        self.wait(1)
+        self.wait(2)
 
         checkMark = MathTex(r"\checkmark", font_size=64, color=GREEN)
         checkMark.next_to(header, UP, buff=0.2)
@@ -247,9 +252,13 @@ class MotivationCheck(Scene):
         self.wait(2)
 
         self.play(FadeOut(*self.mobjects), run_time=1.5)
+        
+
+        self.wait(5)
 
 class FieldDefinition(Scene):
     def construct(self):
+        self.wait(8)
         header = Text("Fields")
         header.to_edge(UP, buff=0.8)
         self.play(Write(header), run_time=1.5)
@@ -261,21 +270,22 @@ class FieldDefinition(Scene):
         define_q[0][-1].set_color(ORANGE)  # T
         define_q[0][-3].set_color(FIELD_COLOR)  # q
 
-        self.play(Write(define_q), run_time=1.5)
-        self.wait(1.5)
+        self.play(Write(define_q), run_time=2.5)
+        self.wait(2)
 
         field = MathTex(r"\mathbb{F}_q = \{0, 1, 2, \ldots, q-1\}", font_size=48, color=FIELD_COLOR)
         self.play(Write(field), run_time=1.5)
-        self.wait(1.5)
+        self.wait(4.5)
 
         self.play(field.animate.shift(UP * 0.8), run_time=1.2)
-        self.wait(1)
+        self.wait(3)
 
         fieldProperty = MathTex(
             r"\forall\, a, b \in \mathbb{F}_q:",
             font_size=48, color=WHITE
         )
         fieldProperty.next_to(field, DOWN, buff=0.8)
+        fieldProperty[0][-3:-1:].set_color(FIELD_COLOR)  # F_q
         self.play(Write(fieldProperty), run_time=1.5)
         self.wait(1.5)
 
@@ -288,8 +298,9 @@ class FieldDefinition(Scene):
         self.play(Write(addition), run_time=1.5)
         self.wait(1)
         self.play(Write(multiplication), run_time=1.5)
-        self.wait(2.5)
+        self.wait(12)
         self.play(FadeOut(*self.mobjects), run_time=1.5)
+        self.wait(5)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -298,6 +309,7 @@ class FieldDefinition(Scene):
 
 class SchwartzZippel(Scene):
     def construct(self):
+        self.wait(5)
         header = Text("The Schwartz-Zippel Lemma", font_size=48, color=WHITE, weight=BOLD)
         self.play(Write(header))
         self.pause(1)
@@ -316,10 +328,10 @@ class SchwartzZippel(Scene):
         VGroup(stmt1, stmt2).arrange(DOWN, buff=0.4)
 
         self.play(Write(stmt1), run_time=4.5)
-        self.pause(2)
+        self.pause(1.5)
 
-        self.play(Write(stmt2), run_time=5.5)
-        self.wait(3)
+        self.play(Write(stmt2), run_time=2.5)
+        self.wait(5.5)
 
         self.play(FadeOut(*self.mobjects), run_time=1.5)
 
@@ -332,7 +344,7 @@ class SchwartzZippel(Scene):
         g_poly.to_edge(UL)
         g_poly.shift(DOWN * 0.7)
         self.play(Write(f_poly), Write(g_poly), run_time=1.5)
-        self.pause(4)
+        self.pause(2)
 
         graph = Axes(
             x_range=[0, 6, 1], y_range=[0, 6, 1], x_length=5, y_length=4, tips=False,
@@ -340,11 +352,9 @@ class SchwartzZippel(Scene):
 
         f_graph = graph.plot(lambda x: x ** 2 - 6 * x + 10, x_range=[3 - 5**0.5, 3 + 5**0.5], color=PROVER_COLOR, stroke_width=3)
         g_graph = graph.plot(lambda x: -x + 6, x_range=[0, 6], color=VERIF_COLOR, stroke_width=3)
-        self.play(Create(graph), run_time=1.5)
+        self.play(Create(graph),run_time=2.5)
+        self.play(Create(f_graph), Create(g_graph), run_time=1)
         self.wait(1)
-
-        self.play(Create(f_graph), Create(g_graph), run_time=2)
-        self.wait(1.5)
 
         # highlight intersection points
         intersections = [
@@ -395,14 +405,16 @@ class SchwartzZippel(Scene):
         )
 
         self.play(ReplacementTransform(new_line, last_line), Indicate(graph_domain[0][6], color=YELLOW, scale_factor=1.2), run_time=2)
-        self.wait(17)
+        self.wait(10)
 
         self.play(FadeOut(*self.mobjects), run_time=1.5)
+        self.wait(4.7)
 
 
 
 class SumCheckSetup(Scene):
     def construct(self):
+        self.wait(5)
         protocol_header = Text("The Protocol", font_size=40, color=WHITE, weight=BOLD)
         self.play(Write(protocol_header), run_time=2.5)
         self.play(FadeOut(protocol_header), run_time=1.5)
@@ -419,7 +431,7 @@ class SumCheckSetup(Scene):
         bob_group = VGroup(bob, bob_text).to_edge(RIGHT, buff=2).shift(DOWN * 0.4)
 
         self.play(FadeIn(alice_group), FadeIn(bob_group), run_time=2)
-        self.wait(2)
+        self.wait(3)
 
         polynomial = MathTex(
             r"g(X_1\ldots\ X_n)",font_size=48
@@ -434,7 +446,7 @@ class SumCheckSetup(Scene):
         domain_text = MathTex(r"\in \{0,1\}^n", font_size=38, color=WHITE)
         domain_text.next_to(domain, RIGHT, buff=0.3)
         self.play(Write(domain_text), run_time=1.5)
-        self.wait(6)
+        self.wait(3)
 
         # speech bubble above alice
         claim = MathTex(
@@ -463,24 +475,24 @@ class SumCheckSetup(Scene):
         tail.scale(0.12).next_to(bubble, DOWN, buff=-0.05)
 
         self.play(FadeIn(bubble), FadeIn(tail), Write(claim), run_time=2.5)
-        self.wait(4)
+        self.wait(3)
         
-        self.play(FadeOut(polynomial, domain, domain_text), run_time=1.5)
+        self.play(FadeOut(polynomial, domain, domain_text), run_time=1)
         example = MathTex(
             r'g(X_1,X_2,X_3) = 2X_1^3 + X_1 X_3 + X_2 X_3',
             font_size=48, color=POLY_COLOR
         )
 
         example.move_to(polynomial)
-        self.play(FadeIn(example), run_time=2)
-        self.wait(5)
+        self.play(Write(example), run_time=2)
+        self.wait(3)
 
         example_claim = MathTex(r"\sum_{X_1\ldots,X_3} g(X_1\ldots X_3) = 12", font_size=24, color=WHITE)
         example_claim[0][-2::].set_color(ORANGE)  # H = 12
 
         example_claim.move_to(claim)
         self.play(ReplacementTransform(claim, example_claim), run_time=1.5)
-        self.wait(2.5)
+        self.wait(2)
 
         alice_first_msg = Tex("Prime $q >> T$", font_size=28, color=PROVER_COLOR)
         alice_first_msg.move_to(alice_group)  # start at alice
@@ -498,22 +510,28 @@ class SumCheckSetup(Scene):
             Write(alice_first_msg),
             run_time=1.2
         )
-        self.wait(6)
+
+
+
+
+        self.wait(4)
         
 
+
+        # Second video
         self.play(alice_group.animate.move_to(ORIGIN).to_edge(UP, buff=0.5), *[FadeOut(mob) for mob in self.mobjects if mob != alice_group], run_time=1.5)
         self.wait(1.5)
 
         sum_x1 = MathTex(r"S_1(X_1) = \sum_{X_2\ldots X_n} g(X_1, X_2\ldots X_n)", font_size=48, color=POLY_COLOR)
         sum_x1.next_to(alice_group, DOWN, buff=0.6)
-        self.play(Write(sum_x1), run_time=2.5)
-        self.wait(5)
+        self.play(Write(sum_x1), run_time=3)
+        self.wait(6)
 
         self.play(sum_x1.animate.to_edge(UP,buff=0.8).to_edge(LEFT,buff=0.1).scale(0.6), run_time=1.5)
         example.next_to(alice_group,DOWN,buff=0.6)
 
-        self.play(Write(example), run_time=2.5)
-        self.pause(3)
+        self.play(Write(example), run_time=1.5)
+        self.pause(1)
 
         g_1_summation = MathTex(
             r"g(X_1,0,0) + g(X_1,0,1) + g(X_1,1,0) + g(X_1,1,1)",
@@ -521,8 +539,8 @@ class SumCheckSetup(Scene):
         )
 
         g_1_summation.next_to(example, DOWN, buff=0.6)
-        self.play(Write(g_1_summation), run_time=3)
-        self.wait(5)
+        self.play(Write(g_1_summation), run_time=2.5)
+        self.wait(1.5)
 
         g1_new = MathTex(
             r"S_1(X_1) = 8X_1^3 + 2X_1 + 1",
@@ -530,7 +548,7 @@ class SumCheckSetup(Scene):
         )
         g1_new.next_to(g_1_summation, DOWN, buff=0.6)
         self.play(Write(g1_new), run_time=3)
-        self.wait(5)
+        self.wait(2)
 
         # position bob off screen right at the same vertical position as alice
         bob_group.move_to(alice_group.get_center())
@@ -549,7 +567,7 @@ class SumCheckSetup(Scene):
             if mob.get_center()[0] < -14:  # arbitrary threshold for "off screen left"
                 self.remove(mob)
         self.add(bob_group)
-        self.wait(1.5)
+        self.wait(1)
         
         bob_s1 = MathTex(r"S_1(X_1)", font_size=48, color=POLY_COLOR)
         bob_s1.next_to(bob_group, DOWN, buff=0.6)
@@ -561,18 +579,18 @@ class SumCheckSetup(Scene):
         self.play(bob_s1.animate.shift(RIGHT * 0.4), run_time=1)
         sum_s1_bob.next_to(bob_s1, LEFT)
         self.play(Write(sum_s1_bob), run_time=2)
-        self.wait(5)
+        self.wait(2.5)
 
         x1_s1_bob = MathTex(r"S_1(0) + S_1(1) \stackrel{?}{=} T", font_size=48, color=POLY_COLOR)
         x1_s1_bob.next_to(sum_s1_bob, DOWN, buff=0.4)
         x1_s1_bob.shift(RIGHT * 1)
         self.play(Write(x1_s1_bob), run_time=3)
-        self.wait(5)
+        self.wait(3)
 
         s1_b1_transform = MathTex(r"\sum_{X_2\ldots X_n} g(X_1, X_2\ldots X_n)", font_size=36, color=POLY_COLOR)
         s1_b1_transform.move_to(bob_s1)
         self.play(ReplacementTransform(bob_s1, s1_b1_transform), sum_s1_bob.animate.next_to(s1_b1_transform, LEFT), run_time=3)
-        self.wait(3)
+        self.wait(5)
 
         exampleS1 = MathTex(
             r"S_1(X_1) = 8X_1^3 + 2X_1 + 1",
@@ -584,7 +602,7 @@ class SumCheckSetup(Scene):
         twelve.shift(RIGHT * 0.3).shift(DOWN * 0.03)
         self.play(FadeOut(s1_b1_transform, sum_s1_bob), run_time=1)
         self.play(Write(exampleS1), ReplacementTransform(x1_s1_bob[0][-1], twelve), run_time=2)
-        self.pause(3)
+        self.pause(4)
 
         # replacement values
         val_0 = MathTex(r"1", font_size=48, color=POLY_COLOR)
@@ -597,7 +615,7 @@ class SumCheckSetup(Scene):
         self.play(
             ReplacementTransform(x1_s1_bob[0][0:5], val_0),
             ReplacementTransform(x1_s1_bob[0][6:11], val_1),
-            run_time=1.5
+            run_time=2
         )
         self.wait(3)
 
@@ -624,6 +642,7 @@ class SumCheckSetup(Scene):
         alice_group.move_to(ORIGIN).to_edge(UP, buff=0.5)
         self.add(alice_group)
         self.wait(1)
+        self.wait(5)
 
 
 class SumCheckScene2(Scene):
@@ -635,22 +654,22 @@ class SumCheckScene2(Scene):
         alice_group = VGroup(alice, alice_text)
         alice_group.move_to(ORIGIN).to_edge(UP, buff=0.5)
         self.add(alice_group)  # no animation, just place her
-
+        self.wait(5)
         # ── Alice receives r=2 ───────────────────────────────────────────
-        r_received = MathTex(r"r = 2", font_size=48, color=FIELD_COLOR)
+        r_received = MathTex(r"r_1 = 2", font_size=48, color=FIELD_COLOR)
         r_received.next_to(alice_group, DOWN, buff=0.6)
         r_received.shift(RIGHT * 15)
         self.play(r_received.animate.shift(LEFT * 15), run_time=1.5)
-        self.wait(2)
+        self.wait(1.5)
 
         # ── Alice defines S_2 ────────────────────────────────────────────
         sum_x2 = MathTex(
-            r"S_2(X_2) = \sum_{X_3 \ldots X_n} g(r, X_2, X_3 \ldots X_n)",
+            r"S_2(X_2) = \sum_{X_3 \ldots X_n} g(r_1, X_2, X_3 \ldots X_n)",
             font_size=40, color=POLY_COLOR
         )
         sum_x2.next_to(r_received, DOWN, buff=0.5)
-        self.play(Write(sum_x2), run_time=2.5)
-        self.wait(4)
+        self.play(Write(sum_x2), run_time=3)
+        self.wait(7.5)
 
         self.play(
             FadeOut(r_received),
@@ -665,7 +684,7 @@ class SumCheckScene2(Scene):
         )
         example.next_to(alice_group, DOWN, buff=0.6)
         self.play(Write(example), run_time=2)
-        self.wait(2)
+        self.wait(1.5)
 
         # ── substitute r=2 into X_1 ──────────────────────────────────────
         example_sub = MathTex(
@@ -674,7 +693,7 @@ class SumCheckScene2(Scene):
         )
         example_sub.move_to(example)
         self.play(ReplacementTransform(example, example_sub), run_time=1.5)
-        self.wait(3)
+        self.wait(0.5)
 
         # ── expand summation over X_3 ∈ {0,1} ───────────────────────────
         g_2_summation = MathTex(
@@ -682,8 +701,8 @@ class SumCheckScene2(Scene):
             font_size=40, color=POLY_COLOR
         )
         g_2_summation.next_to(example_sub, DOWN, buff=0.5)
-        self.play(Write(g_2_summation), run_time=2.5)
-        self.wait(3)
+        self.play(Write(g_2_summation), run_time=2)
+        self.wait(1)
 
         g2_expanded = MathTex(
             r"= 16 + (18 + X_2)",
@@ -691,7 +710,7 @@ class SumCheckScene2(Scene):
         )
         g2_expanded.next_to(g_2_summation, DOWN, buff=0.4)
         self.play(Write(g2_expanded), run_time=2)
-        self.wait(2)
+        self.wait(1)
 
         g2_new = MathTex(
             r"S_2(X_2) = X_2 + 34",
@@ -699,7 +718,7 @@ class SumCheckScene2(Scene):
         )
         g2_new.next_to(g2_expanded, DOWN, buff=0.5)
         self.play(Write(g2_new), run_time=2.5)
-        self.wait(4)
+        self.wait(2)
         # ── swipe to Bob ─────────────────────────────────────────────────
         bob = Circle(radius=0.75, color=VERIF_COLOR, fill_opacity=0.2)
         bob_text = Text("Bob", font_size=22, color=VERIF_COLOR)
@@ -738,13 +757,13 @@ class SumCheckScene2(Scene):
 
         # ── expand S_2(0) + S_2(1) =? S_1(r) ───────────────────────────
         x2_s2_bob = MathTex(
-            r"S_2(0) + S_2(1) \stackrel{?}{=} S_1(r)",
+            r"S_2(0) + S_2(1) \stackrel{?}{=} S_1(r_1)",
             font_size=40, color=POLY_COLOR
         )
         x2_s2_bob.next_to(sum_s2_bob, DOWN, buff=0.5)
         x2_s2_bob.shift(RIGHT * 2)
         self.play(Write(x2_s2_bob), run_time=2.5)
-        self.wait(3)
+        self.wait(7)
 
         # ── evaluate: S_2(0)=34, S_2(1)=35 ─────────────────────────────
         val_0 = MathTex(r"34", font_size=40, color=POLY_COLOR)
@@ -808,7 +827,7 @@ class SumCheckScene2(Scene):
             *[FadeOut(mob) for mob in self.mobjects if mob not in [bob_group, alice_group]],
             run_time=1.5
         )
-        self.wait(1)
+        self.wait(5)
 
 
 class SumCheckRoundI(Scene):
@@ -857,7 +876,7 @@ class SumCheckRoundI(Scene):
         )
         s_full.next_to(alice_group, DOWN, buff=2)
         self.play(Write(s_full), run_time=2.5)
-        self.wait(3)
+        self.wait(12)
 
         # ── swipe back: both at top corners ──────────────────────────────
         bob_group.to_edge(UP, buff=0.5).to_edge(RIGHT, buff=2)
@@ -875,7 +894,7 @@ class SumCheckRoundI(Scene):
         s_label = MathTex(r"S_{i+1}(X_{i+1})", font_size=48, color=PROVER_COLOR)
         s_label.next_to(arrow_to_bob, UP, buff=0.15)
         self.play(Create(arrow_to_bob), Write(s_label), run_time=1.5)
-        self.wait(2)
+        self.wait(1)
 
         # ── Bob checks: Bob to center, Alice exits left ───────────────────
         self.play(
@@ -894,7 +913,7 @@ class SumCheckRoundI(Scene):
         )
         check.next_to(bob_group, DOWN, buff=0.5)
         self.play(Write(check), run_time=2.5)
-        self.wait(3)
+        self.wait(6)
 
         # ── Bob samples r_{i+1} ──────────────────────────────────────────
         next_round = MathTex(
@@ -906,6 +925,8 @@ class SumCheckRoundI(Scene):
         repeat.next_to(next_round, DOWN, buff=0.4)
 
         self.play(Write(next_round), run_time=1.5)
+        self.wait(2)
+
         # ── swipe back: both at top corners ──────────────────────────────
         alice_group.to_edge(UP, buff=0.5).to_edge(LEFT, buff=2)
         alice_group.shift(LEFT * 15)
@@ -920,7 +941,7 @@ class SumCheckRoundI(Scene):
         repeat = Tex("Repeat for rounds $i+1, i+2, ..., n$", font_size=32, color=WHITE)
         repeat.to_edge(UP, buff=0.5).move_to(UP * 3)  # top center between them
         self.play(Write(repeat), run_time=1.2)
-        self.wait(3)
+        self.wait(0.5)
 
         # ── stacked arrows showing remaining rounds ───────────────────────
         start_y = alice_group.get_bottom()[1] - 0.5
@@ -967,7 +988,7 @@ class SumCheckRoundI(Scene):
             *[FadeOut(mob) for mob in self.mobjects if mob != bob_group],
             run_time=1.5
         )
-        self.wait(1)
+        self.wait(5)
 
 class SumCheckFinale(Scene):
     def construct(self):
@@ -978,7 +999,7 @@ class SumCheckFinale(Scene):
         bob_group = VGroup(bob, bob_text)
         bob_group.move_to(UP * 3)
         self.add(bob_group)
-        self.wait(1)
+        self.wait(5)
 
         # ── Bob checks S_n(0) + S_n(1) =? S_{n-1}(r_{n-1}) ─────────────
         check = MathTex(
@@ -987,12 +1008,12 @@ class SumCheckFinale(Scene):
         )
         check.next_to(bob_group, DOWN, buff=0.5)
         self.play(Write(check), run_time=2.5)
-        self.wait(3)
+        self.wait(4)
 
         checkmark = MathTex(r"\checkmark", font_size=48, color=GOOD_COLOR)
         checkmark.next_to(check, RIGHT, buff=0.3)
         self.play(Write(checkmark), run_time=0.8)
-        self.wait(2)
+        self.wait(1)
 
         # ── clear and move to final check ────────────────────────────────
         self.play(FadeOut(check), FadeOut(checkmark), run_time=1.0)
@@ -1005,7 +1026,7 @@ class SumCheckFinale(Scene):
         )
         random_rn.next_to(bob_group, DOWN, buff=0.5)
         self.play(Write(random_rn), run_time=1.5)
-        self.wait(2)
+        self.wait(1)
 
         self.play(FadeOut(random_rn), run_time=0.8)
 
@@ -1016,7 +1037,7 @@ class SumCheckFinale(Scene):
         )
         final_check.next_to(bob_group, DOWN, buff=0.5)
         self.play(Write(final_check), run_time=2.5)
-        self.wait(3)
+        self.wait(10)
 
         # ── if equal, sum is verified ─────────────────────────────────────
         verdict = MathTex(
@@ -1025,7 +1046,7 @@ class SumCheckFinale(Scene):
         )
         verdict.next_to(final_check, DOWN, buff=0.5)
         self.play(Write(verdict), run_time=2.5)
-        self.wait(3)
+        self.wait(5)
 
 
         # ── fade out equations, revert to example polynomial ─────────────
@@ -1041,7 +1062,7 @@ class SumCheckFinale(Scene):
         )
         example.next_to(bob_group, DOWN, buff=0.5)
         self.play(Write(example), run_time=2.5)
-        self.wait(3)
+        self.wait(1)
         
         # ── show r values ─────────────────────────────────────────────────
         r_vals = MathTex(
@@ -1085,5 +1106,245 @@ class SumCheckFinale(Scene):
             self.play(Write(line), run_time=1.2)
             self.wait(0.8)
 
+        self.wait(6)
+        self.play(FadeOut(*self.mobjects), run_time=4.0)
+        self.wait(4)
+
+class SumCheckSoundness(Scene):
+    def construct(self):
+        # ── soundness title ───────────────────────────────────────────────
+        self.wait(5)
+        title = Text("Soundness", font_size=64, color=WHITE, weight=BOLD)
+        self.play(Write(title), run_time=1.5)
+        self.wait(8)
+        self.play(FadeOut(title), run_time=1.0)
+
+        # ── Alice claims false T* ─────────────────────────────────────────
+        false_claim = MathTex(
+            r"T^* \neq \sum_{x_1,\ldots,x_n} g(x_1,\ldots,x_n)",
+            font_size=46, color=WHITE
+        )
+        self.play(Write(false_claim), run_time=2)
+        self.wait(7)
+
+        self.play(FadeOut(false_claim), run_time=1.0)
+
+        # ── both on screen ────────────────────────────────────────────────
+        alice = Circle(radius=0.75, color=PROVER_COLOR, fill_opacity=0.2)
+        alice_text = Text("Alice", font_size=22, color=PROVER_COLOR)
+        alice_text.move_to(alice)
+        alice_group = VGroup(alice, alice_text).to_edge(UP, buff=0.5).to_edge(LEFT, buff=2)
+
+        bob = Circle(radius=0.75, color=VERIF_COLOR, fill_opacity=0.2)
+        bob_text = Text("Bob", font_size=22, color=VERIF_COLOR)
+        bob_text.move_to(bob)
+        bob_group = VGroup(bob, bob_text).to_edge(UP, buff=0.5).to_edge(RIGHT, buff=2)
+
+        self.play(FadeIn(alice_group), FadeIn(bob_group), run_time=0.5)
+        self.wait(0.5)
+
+        # ── focus on Alice: Bob exits right ───────────────────────────────
+        self.play(
+            alice_group.animate.move_to(UP * 3),
+            bob_group.animate.shift(RIGHT * 15),
+            run_time=1.2
+        )
+        self.wait(0.5)
+
+        # ── dishonest S_i^* ───────────────────────────────────────────────
+        dishonest = MathTex(
+            r"S_1^*(X_1) \neq \sum_{X_2,\ldots,X_n} g(X_1, X_2,\ldots,X_n)",
+            font_size=48, color=WHITE
+        )
+        dishonest.next_to(alice_group, DOWN, buff=0.5)
+        self.play(Write(dishonest), run_time=2.5)
         self.wait(3)
-        self.play(FadeOut(aligned), run_time=1.0)
+
+        # ── but Alice crafts it so the check still passes ─────────────────
+        fake_check = MathTex(
+            r"S_1^*(0) + S_1^*(1) = T^*",
+            font_size=48, color=WHITE
+        )
+        fake_check.next_to(dishonest, DOWN, buff=0.5)
+        self.play(Write(fake_check), run_time=2.5)
+        self.wait(3)
+
+        # ── swipe back: both at top corners ───────────────────────────────
+        bob_group.to_edge(UP, buff=0.5).to_edge(RIGHT, buff=2)
+        bob_group.shift(RIGHT * 15)
+        self.play(
+            alice_group.animate.to_edge(UP, buff=0.5).to_edge(LEFT, buff=2),
+            bob_group.animate.shift(LEFT * 15),
+            FadeOut(dishonest), FadeOut(fake_check),
+            run_time=1.5
+        )
+        self.wait(1)
+
+        # ── Alice sends S_i^* to Bob ──────────────────────────────────────
+        def make_arrow(sender, receiver, color):
+            start = np.array([sender.get_center()[0], 0, 0])
+            end   = np.array([receiver.get_center()[0], 0, 0])
+            return Arrow(start=start, end=end, color=color, buff=0)
+
+        arrow_to_bob = make_arrow(alice_group, bob_group, PROVER_COLOR)
+        s_label = MathTex(r"S_1^*(X_1)", font_size=48, color=WHITE)
+        s_label.next_to(arrow_to_bob, UP, buff=0.15)
+
+        self.play(Create(arrow_to_bob), Write(s_label), run_time=1.5)
+        self.wait(2)
+
+        # ── focus on Bob: Alice exits left ────────────────────────────────
+        self.play(
+            FadeOut(arrow_to_bob), FadeOut(s_label),
+            run_time=0.5
+        )
+
+        self.wait(0.5)
+
+        self.play(
+            bob_group.animate.move_to(UP * 3),
+            alice_group.animate.shift(LEFT * 15),
+            run_time=1
+        )
+        self.wait(2.5)
+
+        # ── Bob computes g(r_1,...,r_n) directly ──────────────────────────
+        g_eval = MathTex(
+            r"g(r_1, r_2, \ldots, r_n)",
+            font_size=46, color=VERIF_COLOR
+        )
+        g_eval.next_to(bob_group, DOWN, buff=0.5)
+        self.play(Write(g_eval), run_time=2)
+        self.wait(6)
+
+        # ── Bob compares to S_n^*(r_n) ────────────────────────────────────
+        final_check = MathTex(
+            r"S_n^*(r_n) \stackrel{?}{=} g(r_1, r_2, \ldots, r_n)",
+            font_size=46, color=VERIF_COLOR
+        )
+        final_check.next_to(g_eval, DOWN, buff=0.5)
+        self.play(Write(final_check), run_time=2.5)
+        self.wait(4)
+
+        # ── they differ with high probability ────────────────────────────
+        prob = MathTex(
+            r"\Pr\left[S_n^*(r_n) = g(r_1,\ldots,r_n)\right] \leq\frac{d}{|\mathbb{F}|} \text{ (Schwartz-Zippel)}",
+            font_size=48, color=WHITE
+        )
+        self.pause(5)
+        prob.next_to(final_check, DOWN, buff=0.5)
+        self.play(Write(prob), run_time=4)
+        self.wait(7)
+
+        # ── swipe back: both at top corners ──────────────────────────────
+        alice_group.to_edge(UP, buff=0.5).to_edge(LEFT, buff=2)
+        alice_group.shift(LEFT * 15)
+        self.play(
+            bob_group.animate.to_edge(UP, buff=0.5).to_edge(RIGHT, buff=2),
+            alice_group.animate.shift(RIGHT * 15),
+            FadeOut(g_eval), FadeOut(final_check), FadeOut(prob),
+            run_time=1.5
+        )
+        self.wait(0.5)
+        roundI = MathTex(
+            r"\text{Round } i", font_size=48, color=WHITE
+        )
+        roundI.to_edge(UP, buff=1)
+        self.play(Write(roundI), run_time=1.5)
+        self.wait(1)
+
+
+        arrow_to_bob = make_arrow(alice_group, bob_group, PROVER_COLOR)
+        s_label = MathTex(r"S_i^*(X_i)", font_size=48, color=WHITE)
+        s_label.next_to(arrow_to_bob, UP, buff=0.15)
+
+        self.play(Create(arrow_to_bob), Write(s_label), run_time=1)
+        self.wait(1.5)
+
+        self.play(FadeOut(arrow_to_bob), FadeOut(s_label), run_time=1)
+        self.wait(0.5)
+        # ── Bob sends r_i back to Alice ───────────────────────────────────
+        arrow_to_alice = make_arrow(bob_group, alice_group, VERIF_COLOR)
+        r_label = MathTex(r"r_i", font_size=48, color=VERIF_COLOR)
+        r_label.next_to(arrow_to_alice, UP, buff=0.15)
+
+        self.play(
+            Create(arrow_to_alice), Write(r_label),
+            run_time=1
+        )
+        self.wait(1)
+
+        self.play(FadeOut(arrow_to_alice), FadeOut(r_label), run_time=1)
+
+        # ── show the agreement condition ──────────────────────────────────
+        agreement = MathTex(
+            r"S_i^*(r_i) = S_i(r_i)",
+            font_size=48, color=WHITE
+        )
+        agreement.move_to(ORIGIN)
+        self.play(Write(agreement), run_time=1.5)
+        self.wait(7)
+
+        left_prob = MathTex(
+            r"\Pr\left[",
+            font_size=42, color=WHITE
+        )
+
+        right_prob = MathTex(
+            r"\right] \leq \frac{d}{|\mathbb{F}|}",
+            font_size=42, color=WHITE
+        )
+
+        self.play(agreement.animate.shift(UP * 0.5).shift(LEFT * 0.5).scale(0.8), run_time=1)
+        left_prob.next_to(agreement, LEFT, buff=0.1)
+        right_prob.next_to(agreement, RIGHT, buff=0.1)
+        self.play(Write(left_prob), Write(right_prob), run_time=1.5)
+        self.wait(3)
+
+        # ── fade out everything except probability, shift to top ──────────
+        prob_group = VGroup(left_prob, agreement, right_prob)
+        self.play(
+            *[FadeOut(mob) for mob in self.mobjects if mob not in [left_prob, agreement, right_prob]],
+            prob_group.animate.to_edge(UP, buff=0.5),
+            run_time=1.5
+        )
+        self.wait(0.5)
+
+        for_rounds = MathTex(
+            r"\text{for rounds } 1, \ldots, n",
+            font_size=42, color=WHITE
+        )
+        for_rounds.next_to(prob_group, DOWN, buff=0.2)
+        self.play(Write(for_rounds), run_time=1.2)
+        self.wait(1)
+
+        soundness = MathTex(
+            r"\text{If } T^* \neq \sum_{x_1,\ldots,x_n} g(x_1,\ldots,x_n)",
+            r"\implies \Pr[\text{Alice convinces Bob}] \leq \frac{dn}{|\mathbb{F}|}",
+            font_size=36, color=WHITE
+        )
+
+        self.play(Write(soundness), run_time=2.5)
+        self.wait(6)
+
+        prob = soundness[1][-6:].copy()
+        self.add(prob)
+
+        
+        self.play(
+            *[FadeOut(mob) for mob in self.mobjects if mob != prob],
+            prob.animate.scale(1.5).move_to(ORIGIN),
+            run_time=1.5
+        )
+        self.wait(4)
+
+        large_prime = MathTex(r"2^{1279}-1", font_size=48, color=FIELD_COLOR)
+        large_prime.move_to(prob[-2:])
+
+        self.play(ReplacementTransform(prob[-3:], large_prime), run_time=1.5)
+
+        self.wait(4)
+        self.play(FadeOut(*self.mobjects), run_time=3.0)
+
+        self.wait(5)
+        
